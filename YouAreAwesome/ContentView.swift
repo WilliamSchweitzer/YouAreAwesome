@@ -6,11 +6,15 @@
 //
 
 import SwiftUI
+import AVFAudio
 
 struct ContentView: View {
     @State private var messageString = ""
     @State private var imageName = ""
-    @State private var imageNumber = 0
+    @State private var imageNumber: Int = -1
+    @State private var messageNumber: Int = -1
+    @State private var soundNumber: Int = -1
+    @State private var audioPlayer: AVAudioPlayer!
     //@State private var messageIndex = 0
     
     var body: some View {
@@ -30,6 +34,15 @@ struct ContentView: View {
                     //                        .padding()
                     //                    //.background(Color("Maroon"))
                     //                        .cornerRadius(15)
+                    Text(messageString)
+                        .font(.largeTitle)
+                        .fontWeight(.heavy)
+                        .minimumScaleFactor(0.5)
+                        .multilineTextAlignment(.center)
+                        .foregroundColor(.pink)
+                        .frame(height: 150)
+                        .frame(maxWidth: .infinity)
+                        .padding()
                     
                     Image(imageName)
                         .resizable()
@@ -54,23 +67,20 @@ struct ContentView: View {
                     //                        )
                     //                        .padding()
                     
-                    Text(messageString)
-                        .font(.largeTitle)
-                        .fontWeight(.heavy)
-                        .minimumScaleFactor(0.5)
-                        .multilineTextAlignment(.center)
-                        .foregroundColor(.pink)
-                        .frame(height: 150)
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                    
-                    Spacer()
                     
                     
                     Button("Show Message") {
-                        let messageArray = ["You Are Awesome!", "You are Amazing!", "You are a Code Monster!", "I love you!", "You make me so happy :).", "Have a great day!"]
+                        let messageArray = ["You Are Awesome!", "You are Amazing!", "You are a Code Monster!", "I love you!", "You make me so happy :)", "Have a great day!"]
                         
-                        let messageNumber = Int.random(in: 0...messageArray.count - 1)
+                        var newMessageNumber = 0
+                        var newImageNumber = 0
+                        var newSoundNumber = 0
+                        
+                        repeat {
+                            newMessageNumber = Int.random(in: 0...messageArray.count - 1)
+                        } while messageNumber == newMessageNumber
+                        
+                        messageNumber = newMessageNumber
                         messageString = messageArray[messageNumber]
                         //messageIndex = (messageIndex == messageArray.count - 1) ? 0 : messageIndex + 1
                         
@@ -78,7 +88,12 @@ struct ContentView: View {
                         // let imageName1 = "image0"
                         // let imageName2 = "image1"
                         
-                        imageName = "image\(Int.random(in: 0...9))"
+                        repeat {
+                            newImageNumber = Int.random(in: 0...9)
+                        } while imageNumber == newImageNumber
+                        
+                        imageNumber = newImageNumber
+                        imageName = "image\(imageNumber)"
                         
 //                        imageNumber += 1
 //                        
@@ -88,6 +103,25 @@ struct ContentView: View {
 
                         // messageString = (messageString == message1 ? message2 : message1)
                         // imageName = (imageName == imageName1 ? imageName2 : imageName1)
+                        
+                        repeat {
+                            newSoundNumber = Int.random(in: 0...5)
+                        } while soundNumber == newImageNumber
+                        
+                        soundNumber = newSoundNumber
+                        
+                        let soundName = "sound\(soundNumber)"
+                        
+                        guard let soundFile = NSDataAsset(name: soundName) else {
+                            print("😡 Could not read file name \(soundName)")
+                            return
+                        }
+                        do {
+                            audioPlayer = try AVAudioPlayer(data: soundFile.data)
+                            audioPlayer.play()
+                        } catch {
+                            print("😡 ERROR: \(error.localizedDescription) creating audioPlayer.")
+                        }
                     }
                     .buttonStyle(.borderedProminent)
                     //.border(.purple, width: 5)
